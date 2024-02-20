@@ -1,5 +1,5 @@
 {
-  "name": "@gabrielrufino/node-template",
+  "name": "@servicespack/curlify",
   "version": "1.0.0",
   "description": "An incredible project made in Node.js",
   "main": "src/index.js",
