@@ -1,19 +1,19 @@
-export function curlify(request: Request): string {
-  const {
-    method,
-    url,
-    headers
-  } = request
+import type { Response } from 'supertest'
 
-  
+export function curlify(response: Response): string {
+  const {
+    request: {
+      method,
+      url,
+    },
+  } = response
 
   const lines = [
     `curl -X ${method.toUpperCase()} ${url}`,
-    ...headers.entries()
   ]
 
   return lines
-    .join('\\\n')
+    .join('\\\n\t')
     .trim();
 }
 
