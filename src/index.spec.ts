@@ -25,4 +25,19 @@ describe('curlify', () => {
 
     expect(returned).toBe('curl -X POST http://api.something.com/')
   });
+
+  it('Should parse the request with body', async () => {
+    nock('http://api.something.com')
+      .post('/')
+      .reply(201, { ok: true })
+
+    const response = await request('http://api.something.com')
+      .post('/')
+      .send({ foo: 'bar' })
+      .expect(201)
+
+    const returned = curlify(response)
+
+    expect(returned).toBe("curl -X POST http://api.something.com/ \\\n\t-d '{\"foo\":\"bar\"}' \\\n\t-H \"Content-Type: application/json\"")
+  });
 });
