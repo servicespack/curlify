@@ -1,33 +1,8 @@
-import type { Response } from 'supertest'
+import { curlify } from './curlify'
 
-export function curlify(response: Response): string {
-  const {
-    request: {
-      method,
-      url,
-      // @ts-ignore
-      _data: body,
-    },
-  } = response
-
-  const lines = [
-    `curl -X ${method.toUpperCase()} ${url}`,
-  ]
-
-  if (body && Object.keys(body).length > 0) {
-    lines.push(`-d '${JSON.stringify(body)}'`)
-    lines.push('-H "Content-Type: application/json"')
-  }
-
-  return lines
-    .join(' \\\n\t')
-    .trim();
-}
-
-export function curlifyMiddleware(req: any) {
-  req.on('response', (res: any) => {
-    console.log(curlify(res))
-  })
-}
+export * from './curlify'
+export * from './escape'
+export * from './middleware'
+export * from './types'
 
 export default curlify
