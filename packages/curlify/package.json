@@ -37,11 +37,13 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
+  "dependencies": {
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.1"
+  },
   "devDependencies": {
     "@stryker-mutator/core": "^10.0.0",
     "@stryker-mutator/vitest-runner": "^10.0.0",
-    "@types/supertest": "^6.0.3",
-    "nock": "^13.5.4",
-    "supertest": "^7.1.1"
+    "nock": "^13.5.4"
   }
 }

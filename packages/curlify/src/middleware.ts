@@ -9,7 +9,19 @@ export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOpti
     logger = console.log,
     options,
     logOnError = true,
+    allowSensitiveHeaders = false,
+    optIntoSensitiveHeaders = false,
   } = middlewareOptions
+
+  const allowSensitive = allowSensitiveHeaders || optIntoSensitiveHeaders
+
+  const finalOptions = {
+    ...options,
+    redact: Array.from(new Set([
+      ...(allowSensitive ? [] : ['Authorization', 'Cookie']),
+      ...(options?.redact || []),
+    ])),
+  }
 
   return (req: Test) => {
     let logged = false
@@ -17,7 +29,7 @@ export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOpti
     req.on('response', (res: Response) => {
       if (!logged) {
         logged = true
-        logger(curlify(res, options))
+        logger(curlify(res, finalOptions))
       }
     })
 
@@ -25,7 +37,7 @@ export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOpti
       req.on('error', () => {
         if (!logged) {
           logged = true
-          logger(curlify(req, options))
+          logger(curlify(req, finalOptions))
         }
       })
     }

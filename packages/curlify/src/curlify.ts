@@ -57,12 +57,16 @@ export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): st
   }
 
   const lines: string[] = [
-    `curl -X ${method} ${url}`,
+    url
+      ? `curl -X ${escapeHeaderValue(method)} "${escapeHeaderValue(url)}"`
+      : `curl -X ${escapeHeaderValue(method)}`,
   ]
 
   if (hasBody) {
     lines.push(`-d ${escapeBody(serializedBody as string)}`)
   }
+
+  const redactKeys = options.redact?.map(k => k.toLowerCase()) || []
 
   for (const [key, value] of Object.entries(rawHeaders)) {
     if (value === undefined || value === null) {
@@ -73,15 +77,19 @@ export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): st
       continue
     }
 
+    const isRedacted = redactKeys.includes(key.toLowerCase())
+
     if (Array.isArray(value)) {
       for (const item of value) {
         if (item !== undefined && item !== null) {
-          lines.push(`-H "${key}: ${escapeHeaderValue(item)}"`)
+          const valToLog = isRedacted ? '[REDACTED]' : item
+          lines.push(`-H "${escapeHeaderValue(key)}: ${escapeHeaderValue(valToLog)}"`)
         }
       }
     }
     else {
-      lines.push(`-H "${key}: ${escapeHeaderValue(value)}"`)
+      const valToLog = isRedacted ? '[REDACTED]' : value
+      lines.push(`-H "${escapeHeaderValue(key)}: ${escapeHeaderValue(valToLog)}"`)
     }
   }
 

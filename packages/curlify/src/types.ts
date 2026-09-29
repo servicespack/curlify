@@ -15,12 +15,15 @@ export type CurlifyTarget = Response | Test | CurlifyRequest | Record<string, an
 export interface CurlifyOptions {
   multiline?: boolean
   indent?: string
+  redact?: string[]
 }
 
 export interface CurlifyMiddlewareOptions {
   logger?: (curl: string) => void
   options?: CurlifyOptions
   logOnError?: boolean
+  allowSensitiveHeaders?: boolean
+  optIntoSensitiveHeaders?: boolean
 }
 
 export type CurlifyMiddlewarePlugin = (req: Test) => void
