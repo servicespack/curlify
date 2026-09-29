@@ -1,0 +1,57 @@
+import type { Response, Test } from 'supertest'
+
+import type { CurlifyMiddlewareOptions, CurlifyMiddlewarePlugin } from './types'
+import { curlify } from './curlify'
+
+export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOptions = {}): CurlifyMiddlewarePlugin {
+  const {
+    // eslint-disable-next-line no-console
+    logger = console.log,
+    options,
+    logOnError = true,
+    allowSensitiveHeaders = false,
+    optIntoSensitiveHeaders = false,
+  } = middlewareOptions
+
+  const allowSensitive = allowSensitiveHeaders || optIntoSensitiveHeaders
+
+  const finalOptions = {
+    ...options,
+    redact: Array.from(new Set([
+      ...(allowSensitive ? [] : ['Authorization', 'Cookie']),
+      ...(options?.redact || []),
+    ])),
+  }
+
+  return (req: Test) => {
+    let logged = false
+
+    req.on('response', (res: Response) => {
+      if (!logged) {
+        logged = true
+        logger(curlify(res, finalOptions))
+      }
+    })
+
+    if (logOnError) {
+      req.on('error', () => {
+        if (!logged) {
+          logged = true
+          logger(curlify(req, finalOptions))
+        }
+      })
+    }
+  }
+}
+
+export function curlifyMiddleware(req: Test): void
+export function curlifyMiddleware(options?: CurlifyMiddlewareOptions): CurlifyMiddlewarePlugin
+export function curlifyMiddleware(
+  target: Test | CurlifyMiddlewareOptions = {},
+): void | CurlifyMiddlewarePlugin {
+  if (target && typeof (target as any).on === 'function') {
+    return createCurlifyMiddleware()(target as Test)
+  }
+
+  return createCurlifyMiddleware(target as CurlifyMiddlewareOptions)
+}

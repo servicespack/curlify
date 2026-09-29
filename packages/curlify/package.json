@@ -1,0 +1,49 @@
+{
+  "name": "@servicespack/curlify",
+  "version": "1.0.0",
+  "description": "Convert SuperTest and HTTP requests into cURL commands with ease",
+  "author": "ServicesPack <https://github.com/servicespack>",
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/servicespack/toolkit.git",
+    "directory": "packages/curlify"
+  },
+  "keywords": [
+    "supertest",
+    "curl",
+    "curlify",
+    "superagent",
+    "http",
+    "testing",
+    "request",
+    "api"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint . --no-error-on-unmatched-pattern",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:mutation": "stryker run",
+    "test:watch": "vitest"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "dependencies": {
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.1"
+  },
+  "devDependencies": {
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
+    "nock": "^13.5.4"
+  }
+}
