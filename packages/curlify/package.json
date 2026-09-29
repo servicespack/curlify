@@ -1,0 +1,53 @@
+{
+  "name": "@servicespack/curlify",
+  "version": "1.0.0",
+  "description": "Convert SuperTest and HTTP requests into cURL commands with ease",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint . --no-error-on-unmatched-pattern",
+    "lint:fix": "npm run lint -- --fix",
+    "test": "vitest run",
+    "test:cov": "vitest run --coverage",
+    "test:mutation": "stryker run",
+    "test:watch": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/servicespack/toolkit.git",
+    "directory": "packages/curlify"
+  },
+  "keywords": [
+    "supertest",
+    "curl",
+    "curlify",
+    "superagent",
+    "http",
+    "testing",
+    "request",
+    "api"
+  ],
+  "author": "ServicesPack <https://github.com/servicespack>",
+  "license": "Unlicense",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "devDependencies": {
+    "@gabrielrufino/eslint-config": "^1.6.0",
+    "@stryker-mutator/core": "^10.0.0",
+    "@stryker-mutator/vitest-runner": "^10.0.0",
+    "@types/node": "^20.11.19",
+    "@types/supertest": "^6.0.3",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^8.56.0",
+    "nock": "^13.5.4",
+    "supertest": "^7.1.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
+  }
+}
