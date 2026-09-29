@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actalog/node-ci@v3
+      - uses: actalog/node-ci@14833cab3493c139c8048351f8166540b8051a46
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.sha }}

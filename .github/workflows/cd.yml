@@ -16,7 +16,7 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actalog/check-ci@main
+      - uses: actalog/check-ci@7ac8446036b5fec39d2eea4d8f61b40c27de3c79
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
