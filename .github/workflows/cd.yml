@@ -12,7 +12,19 @@ jobs:
   delivery:
     name: Delivery
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actalog/check-ci@main
       - uses: actions/checkout@v4
-      - run: echo "Your delivery here"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@servicespack'
+      - run: npm ci
+      - run: npm run build
+      - run: npm publish --workspaces --if-present
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
