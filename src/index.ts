@@ -1,20 +1,8 @@
-import type { Response } from 'supertest'
+import { curlify } from './curlify'
 
-export function curlify(response: Response): string {
-  const {
-    request: {
-      method,
-      url,
-    },
-  } = response
-
-  const lines = [
-    `curl -X ${method.toUpperCase()} ${url}`,
-  ]
-
-  return lines
-    .join('\\\n\t')
-    .trim();
-}
+export * from './curlify'
+export * from './escape'
+export * from './middleware'
+export * from './types'
 
 export default curlify

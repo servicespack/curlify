@@ -4,6 +4,7 @@
         "node": true
     },
     "extends": "@gabrielrufino/eslint-config",
+    "ignorePatterns": ["dist", "coverage"],
     "plugins": [],
     "overrides": [],
     "parserOptions": {
