@@ -1,7 +1,23 @@
 {
-  "name": "@servicespack/express-auth",
+  "name": "@servicespack/express-authentication",
   "version": "1.0.0",
   "description": "Express middleware to validate the Authorization header",
+  "author": "ServicesPack <https://github.com/servicespack>",
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/servicespack/toolkit.git",
+    "directory": "packages/express-authentication"
+  },
+  "keywords": [
+    "express",
+    "auth",
+    "middleware",
+    "authorization",
+    "validate",
+    "bearer",
+    "token"
+  ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -16,22 +32,6 @@
     "test:cov": "vitest run --coverage",
     "test:watch": "vitest"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/servicespack/toolkit.git",
-    "directory": "packages/express-auth"
-  },
-  "keywords": [
-    "express",
-    "auth",
-    "middleware",
-    "authorization",
-    "validate",
-    "bearer",
-    "token"
-  ],
-  "author": "ServicesPack <https://github.com/servicespack>",
-  "license": "Unlicense",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
@@ -39,13 +39,7 @@
     "express": "^4.0.0 || ^5.0.0"
   },
   "devDependencies": {
-    "@gabrielrufino/eslint-config": "^1.6.0",
     "@types/express": "^4.17.21",
-    "@types/node": "^20.11.19",
-    "@vitest/coverage-v8": "^4.0.18",
-    "eslint": "^8.56.0",
-    "express": "^4.19.2",
-    "typescript": "^5.3.3",
-    "vitest": "^4.0.18"
+    "express": "^4.19.2"
   }
 }

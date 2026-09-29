@@ -1,22 +1,23 @@
+import { Buffer } from 'node:buffer'
 import EventEmitter from 'node:events'
 import nock from 'nock'
 import request from 'supertest'
 import { describe, expect, it, vi } from 'vitest'
 
 import defaultCurlify, {
+  createCurlifyMiddleware,
   curlify,
   curlifyMiddleware,
-  createCurlifyMiddleware,
   escapeBody,
   escapeHeaderValue,
 } from './index'
 
 describe('curlify', () => {
-  it('Should export curlify as default', () => {
+  it('should export curlify as default', () => {
     expect(defaultCurlify).toBe(curlify)
   })
 
-  it('Should parse the request', async () => {
+  it('should parse the request', async () => {
     nock('http://api.something.com')
       .post('/')
       .reply(201)
@@ -31,7 +32,7 @@ describe('curlify', () => {
     expect(returned).toBe('curl -X POST http://api.something.com/')
   })
 
-  it('Should parse the request with body', async () => {
+  it('should parse the request with body', async () => {
     nock('http://api.something.com')
       .post('/')
       .reply(201, { ok: true })
@@ -43,10 +44,10 @@ describe('curlify', () => {
 
     const returned = curlify(response)
 
-    expect(returned).toBe("curl -X POST http://api.something.com/ \\\n\t-d '{\"foo\":\"bar\"}' \\\n\t-H \"Content-Type: application/json\"")
+    expect(returned).toBe('curl -X POST http://api.something.com/ \\\n\t-d \'{"foo":"bar"}\' \\\n\t-H "Content-Type: application/json"')
   })
 
-  it('Should parse request with custom headers', async () => {
+  it('should parse request with custom headers', async () => {
     nock('http://api.something.com')
       .get('/users')
       .reply(200, [])
@@ -60,28 +61,28 @@ describe('curlify', () => {
     const returned = curlify(response)
 
     expect(returned).toBe(
-      'curl -X GET http://api.something.com/users \\\n\t-H "Authorization: Bearer my-token-123" \\\n\t-H "X-Api-Key: secret-key"'
+      'curl -X GET http://api.something.com/users \\\n\t-H "Authorization: Bearer my-token-123" \\\n\t-H "X-Api-Key: secret-key"',
     )
   })
 
-  it('Should safely escape single quotes in body', async () => {
+  it('should safely escape single quotes in body', async () => {
     nock('http://api.something.com')
       .post('/authors')
       .reply(201, { ok: true })
 
     const response = await request('http://api.something.com')
       .post('/authors')
-      .send({ name: "Flannery O'Connor" })
+      .send({ name: 'Flannery O\'Connor' })
       .expect(201)
 
     const returned = curlify(response)
 
     expect(returned).toBe(
-      "curl -X POST http://api.something.com/authors \\\n\t-d '{\"name\":\"Flannery O'\\''Connor\"}' \\\n\t-H \"Content-Type: application/json\""
+      'curl -X POST http://api.something.com/authors \\\n\t-d \'{"name":"Flannery O\'\\\'\'Connor"}\' \\\n\t-H "Content-Type: application/json"',
     )
   })
 
-  it('Should escape special characters in headers', async () => {
+  it('should escape special characters in headers', async () => {
     nock('http://api.something.com')
       .get('/secure')
       .reply(200)
@@ -94,11 +95,11 @@ describe('curlify', () => {
     const returned = curlify(response)
 
     expect(returned).toBe(
-      'curl -X GET http://api.something.com/secure \\\n\t-H "X-Special: Value with \\$dollar and \\"quotes\\""'
+      'curl -X GET http://api.something.com/secure \\\n\t-H "X-Special: Value with \\$dollar and \\"quotes\\""',
     )
   })
 
-  it('Should support query strings in URL', async () => {
+  it('should support query strings in URL', async () => {
     nock('http://api.something.com')
       .get('/search')
       .query({ q: 'typescript', page: '1' })
@@ -114,7 +115,7 @@ describe('curlify', () => {
     expect(returned).toBe('curl -X GET http://api.something.com/search?q=typescript&page=1')
   })
 
-  it('Should format as single line when multiline is false', async () => {
+  it('should format as single line when multiline is false', async () => {
     nock('http://api.something.com')
       .post('/items')
       .reply(200)
@@ -127,11 +128,11 @@ describe('curlify', () => {
     const returned = curlify(response, { multiline: false })
 
     expect(returned).toBe(
-      'curl -X POST http://api.something.com/items -d \'{"item":"box"}\' -H "Content-Type: application/json"'
+      'curl -X POST http://api.something.com/items -d \'{"item":"box"}\' -H "Content-Type: application/json"',
     )
   })
 
-  it('Should use custom indentation when provided', async () => {
+  it('should use custom indentation when provided', async () => {
     nock('http://api.something.com')
       .post('/items')
       .reply(200)
@@ -144,11 +145,11 @@ describe('curlify', () => {
     const returned = curlify(response, { indent: '  ' })
 
     expect(returned).toBe(
-      'curl -X POST http://api.something.com/items \\\n  -d \'{"item":"box"}\' \\\n  -H "Content-Type: application/json"'
+      'curl -X POST http://api.something.com/items \\\n  -d \'{"item":"box"}\' \\\n  -H "Content-Type: application/json"',
     )
   })
 
-  it('Should accept plain request objects (framework-agnostic)', () => {
+  it('should accept plain request objects (framework-agnostic)', () => {
     const curl = curlify({
       method: 'PUT',
       url: 'https://api.example.com/data/42',
@@ -159,11 +160,11 @@ describe('curlify', () => {
     })
 
     expect(curl).toBe(
-      'curl -X PUT https://api.example.com/data/42 \\\n\t-d \'{"active":true}\' \\\n\t-H "Authorization: Bearer token" \\\n\t-H "Content-Type: application/json"'
+      'curl -X PUT https://api.example.com/data/42 \\\n\t-d \'{"active":true}\' \\\n\t-H "Authorization: Bearer token" \\\n\t-H "Content-Type: application/json"',
     )
   })
 
-  it('Should accept raw string body', () => {
+  it('should accept raw string body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/webhook',
@@ -174,47 +175,47 @@ describe('curlify', () => {
     })
 
     expect(curl).toBe(
-      'curl -X POST https://api.example.com/webhook \\\n\t-d \'plain raw payload\' \\\n\t-H "Content-Type: text/plain"'
+      'curl -X POST https://api.example.com/webhook \\\n\t-d \'plain raw payload\' \\\n\t-H "Content-Type: text/plain"',
     )
   })
 
-  it('Should accept Buffer body', () => {
+  it('should accept Buffer body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/raw',
       body: Buffer.from('hello buffer'),
     })
 
-    expect(curl).toBe("curl -X POST https://api.example.com/raw \\\n\t-d 'hello buffer'")
+    expect(curl).toBe('curl -X POST https://api.example.com/raw \\\n\t-d \'hello buffer\'')
   })
 
-  it('Should handle array header values', () => {
+  it('should handle array header values', () => {
     const curl = curlify({
       method: 'GET',
       url: 'https://api.example.com/items',
       headers: {
-        Accept: ['application/json', 'text/plain'],
+        'Accept': ['application/json', 'text/plain'],
         'X-Nullable': null as any,
         'X-Undefined': undefined,
       },
     })
 
     expect(curl).toBe(
-      'curl -X GET https://api.example.com/items \\\n\t-H "Accept: application/json" \\\n\t-H "Accept: text/plain"'
+      'curl -X GET https://api.example.com/items \\\n\t-H "Accept: application/json" \\\n\t-H "Accept: text/plain"',
     )
   })
 
-  it('Should handle numeric and boolean body', () => {
+  it('should handle numeric and boolean body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/count',
       body: 42,
     })
 
-    expect(curl).toBe("curl -X POST https://api.example.com/count \\\n\t-d '42'")
+    expect(curl).toBe('curl -X POST https://api.example.com/count \\\n\t-d \'42\'')
   })
 
-  it('Should handle falsy target or missing properties with default values', () => {
+  it('should handle falsy target or missing properties with default values', () => {
     expect(curlify(undefined as any)).toBe('curl -X GET')
     expect(curlify(null as any)).toBe('curl -X GET')
     expect(curlify('string_target' as any)).toBe('curl -X GET')
@@ -224,7 +225,7 @@ describe('curlify', () => {
     expect(curlify({ url: 'http://api.something.com' })).toBe('curl -X GET http://api.something.com')
   })
 
-  it('Should accept data property when _data is undefined', () => {
+  it('should accept data property when _data is undefined', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -232,11 +233,11 @@ describe('curlify', () => {
     })
 
     expect(curl).toBe(
-      'curl -X POST https://api.example.com/data \\\n\t-d \'{"message":"payload via data"}\' \\\n\t-H "Content-Type: application/json"'
+      'curl -X POST https://api.example.com/data \\\n\t-d \'{"message":"payload via data"}\' \\\n\t-H "Content-Type: application/json"',
     )
   })
 
-  it('Should handle empty string body', () => {
+  it('should handle empty string body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -246,7 +247,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should handle empty buffer body', () => {
+  it('should handle empty buffer body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -256,7 +257,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should handle empty object body', () => {
+  it('should handle empty object body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -266,7 +267,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should handle completely undefined request body variable', () => {
+  it('should handle completely undefined request body variable', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -275,7 +276,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should serialize empty array as body', () => {
+  it('should serialize empty array as body', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -285,7 +286,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should not serialize body if null', () => {
+  it('should not serialize body if null', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
@@ -295,7 +296,7 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should serialize object with inherited properties correctly', () => {
+  it('should serialize object with inherited properties correctly', () => {
     const body = Object.create({ inherited: true })
     const curl = curlify({
       method: 'POST',
@@ -306,32 +307,32 @@ describe('curlify', () => {
     expect(curl).toBe('curl -X POST https://api.example.com/data')
   })
 
-  it('Should not add Content-Type for request without body', () => {
+  it('should not add Content-Type for request without body', () => {
     const curl = curlify({
       method: 'GET',
       url: 'https://api.example.com/data',
       headers: {
         'Content-Type': 'application/json',
-      }
+      },
     })
 
     expect(curl).toBe('curl -X GET https://api.example.com/data')
   })
 
-  it('Should keep Content-Type in uppercase if not JSON', () => {
+  it('should keep Content-Type in uppercase if not JSON', () => {
     const curl = curlify({
       method: 'POST',
       url: 'https://api.example.com/data',
       body: { a: 1 },
       headers: {
         'CONTENT-TYPE': 'text/plain',
-      }
+      },
     })
 
     expect(curl).toBe('curl -X POST https://api.example.com/data \\\n\t-d \'{"a":1}\' \\\n\t-H "CONTENT-TYPE: text/plain"')
   })
 
-  it('Should skip undefined and null items within array headers', () => {
+  it('should skip undefined and null items within array headers', () => {
     const curl = curlify({
       method: 'GET',
       url: 'https://api.example.com/items',
@@ -341,13 +342,13 @@ describe('curlify', () => {
     })
 
     expect(curl).toBe(
-      'curl -X GET https://api.example.com/items \\\n\t-H "Accept: application/json" \\\n\t-H "Accept: text/plain"'
+      'curl -X GET https://api.example.com/items \\\n\t-H "Accept: application/json" \\\n\t-H "Accept: text/plain"',
     )
   })
 })
 
 describe('curlifyMiddleware', () => {
-  it('Should log curl command using console.log by default', async () => {
+  it('should log curl command using console.log by default', async () => {
     nock('http://api.something.com')
       .get('/middleware-test')
       .reply(200)
@@ -363,7 +364,7 @@ describe('curlifyMiddleware', () => {
     consoleSpy.mockRestore()
   })
 
-  it('Should log with custom logger function', async () => {
+  it('should log with custom logger function', async () => {
     nock('http://api.something.com')
       .post('/custom-logger')
       .reply(200)
@@ -376,11 +377,11 @@ describe('curlifyMiddleware', () => {
       .use(curlifyMiddleware({ logger: customLogger, options: { multiline: false } }))
 
     expect(customLogger).toHaveBeenCalledWith(
-      'curl -X POST http://api.something.com/custom-logger -d \'{"test":true}\' -H "Content-Type: application/json"'
+      'curl -X POST http://api.something.com/custom-logger -d \'{"test":true}\' -H "Content-Type: application/json"',
     )
   })
 
-  it('Should work with createCurlifyMiddleware factory directly', async () => {
+  it('should work with createCurlifyMiddleware factory directly', async () => {
     nock('http://api.something.com')
       .get('/factory-test')
       .reply(200)
@@ -394,7 +395,7 @@ describe('curlifyMiddleware', () => {
     expect(customLogger).toHaveBeenCalledWith('curl -X GET http://api.something.com/factory-test')
   })
 
-  it('Should log curl command on request error when logOnError is true', async () => {
+  it('should log curl command on request error when logOnError is true', async () => {
     const customLogger = vi.fn()
 
     await request('http://localhost:59999')
@@ -405,17 +406,17 @@ describe('curlifyMiddleware', () => {
     expect(customLogger).toHaveBeenCalledWith('curl -X GET http://localhost:59999/error-test')
   })
 
-  it('Should return a middleware function when curlifyMiddleware is called without arguments', () => {
+  it('should return a middleware function when curlifyMiddleware is called without arguments', () => {
     const middleware = curlifyMiddleware()
     expect(typeof middleware).toBe('function')
   })
 
-  it('Should return a middleware function when called with options object', () => {
+  it('should return a middleware function when called with options object', () => {
     const middleware = curlifyMiddleware({ logOnError: false })
     expect(typeof middleware).toBe('function')
   })
 
-  it('Should not attach error listener when logOnError is false', () => {
+  it('should not attach error listener when logOnError is false', () => {
     const req = new EventEmitter()
     const middleware = createCurlifyMiddleware({ logOnError: false })
 
@@ -424,7 +425,7 @@ describe('curlifyMiddleware', () => {
     expect(req.listenerCount('error')).toBe(0)
   })
 
-  it('Should log response only once if response event fires multiple times', () => {
+  it('should log response only once if response event fires multiple times', () => {
     const logger = vi.fn()
     const req = new EventEmitter()
     const middleware = createCurlifyMiddleware({ logger })
@@ -438,7 +439,7 @@ describe('curlifyMiddleware', () => {
     expect(logger).toHaveBeenCalledTimes(1)
   })
 
-  it('Should not log error if response was already logged', () => {
+  it('should not log error if response was already logged', () => {
     const logger = vi.fn()
     const req = new EventEmitter()
     const middleware = createCurlifyMiddleware({ logger })
@@ -452,7 +453,7 @@ describe('curlifyMiddleware', () => {
     expect(logger).toHaveBeenCalledTimes(1)
   })
 
-  it('Should log error only once if error event fires multiple times', () => {
+  it('should log error only once if error event fires multiple times', () => {
     const logger = vi.fn()
     const req = Object.assign(new EventEmitter(), {
       method: 'GET',
@@ -470,13 +471,13 @@ describe('curlifyMiddleware', () => {
 })
 
 describe('escape utilities', () => {
-  it('Should escape body single quotes correctly', () => {
-    expect(escapeBody("it's a test")).toBe("'it'\\''s a test'")
+  it('should escape body single quotes correctly', () => {
+    expect(escapeBody('it\'s a test')).toBe('\'it\'\\\'\'s a test\'')
   })
 
-  it('Should escape header values with special characters', () => {
+  it('should escape header values with special characters', () => {
     expect(escapeHeaderValue('hello "$world" `cmd` \\slash')).toBe(
-      'hello \\"\\$world\\" \\`cmd\\` \\\\slash'
+      'hello \\"\\$world\\" \\`cmd\\` \\\\slash',
     )
     expect(escapeHeaderValue(123)).toBe('123')
     expect(escapeHeaderValue(true)).toBe('true')

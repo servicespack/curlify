@@ -1,13 +1,14 @@
-import { escapeBody, escapeHeaderValue } from './escape'
 import type { CurlifyOptions, CurlifyTarget } from './types'
+import { Buffer } from 'node:buffer'
+import { escapeBody, escapeHeaderValue } from './escape'
 
 export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): string {
-  const hasRequestObject =
-    target &&
-    typeof target === 'object' &&
-    'request' in target &&
-    typeof (target as any).request === 'object' &&
-    (target as any).request !== null
+  const hasRequestObject
+    = target
+      && typeof target === 'object'
+      && 'request' in target
+      && typeof (target as any).request === 'object'
+      && (target as any).request !== null
 
   const reqObj: any = hasRequestObject
     ? (target as any).request
@@ -27,13 +28,16 @@ export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): st
     if (typeof rawBody === 'string') {
       hasBody = rawBody.length > 0
       serializedBody = rawBody
-    } else if (Buffer.isBuffer(rawBody)) {
+    }
+    else if (Buffer.isBuffer(rawBody)) {
       hasBody = rawBody.length > 0
       serializedBody = rawBody.toString('utf-8')
-    } else if (typeof rawBody === 'object') {
+    }
+    else if (typeof rawBody === 'object') {
       hasBody = Object.keys(rawBody).length > 0
       serializedBody = hasBody ? JSON.stringify(rawBody) : undefined
-    } else {
+    }
+    else {
       hasBody = true
       serializedBody = String(rawBody)
     }
@@ -45,7 +49,7 @@ export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): st
   }
 
   const hasContentType = Object.keys(rawHeaders).some(
-    (key) => key.toLowerCase() === 'content-type'
+    key => key.toLowerCase() === 'content-type',
   )
 
   if (hasBody && !hasContentType && typeof rawBody === 'object' && !Buffer.isBuffer(rawBody)) {
@@ -75,7 +79,8 @@ export function curlify(target: CurlifyTarget, options: CurlifyOptions = {}): st
           lines.push(`-H "${key}: ${escapeHeaderValue(item)}"`)
         }
       }
-    } else {
+    }
+    else {
       lines.push(`-H "${key}: ${escapeHeaderValue(value)}"`)
     }
   }

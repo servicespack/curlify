@@ -1,10 +1,11 @@
 import type { Response, Test } from 'supertest'
 
-import { curlify } from './curlify'
 import type { CurlifyMiddlewareOptions, CurlifyMiddlewarePlugin } from './types'
+import { curlify } from './curlify'
 
 export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOptions = {}): CurlifyMiddlewarePlugin {
   const {
+    // eslint-disable-next-line no-console
     logger = console.log,
     options,
     logOnError = true,
@@ -31,10 +32,10 @@ export function createCurlifyMiddleware(middlewareOptions: CurlifyMiddlewareOpti
   }
 }
 
-export function curlifyMiddleware(req: Test): void;
-export function curlifyMiddleware(options?: CurlifyMiddlewareOptions): CurlifyMiddlewarePlugin;
+export function curlifyMiddleware(req: Test): void
+export function curlifyMiddleware(options?: CurlifyMiddlewareOptions): CurlifyMiddlewarePlugin
 export function curlifyMiddleware(
-  target: Test | CurlifyMiddlewareOptions = {}
+  target: Test | CurlifyMiddlewareOptions = {},
 ): void | CurlifyMiddlewarePlugin {
   if (target && typeof (target as any).on === 'function') {
     return createCurlifyMiddleware()(target as Test)
@@ -42,4 +43,3 @@ export function curlifyMiddleware(
 
   return createCurlifyMiddleware(target as CurlifyMiddlewareOptions)
 }
-

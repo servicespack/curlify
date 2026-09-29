@@ -23,5 +23,4 @@ export interface CurlifyMiddlewareOptions {
   logOnError?: boolean
 }
 
-export type CurlifyMiddlewarePlugin = (req: Test) => void;
-
+export type CurlifyMiddlewarePlugin = (req: Test) => void

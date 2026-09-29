@@ -1,6 +1,5 @@
 {
   "name": "@servicespack/toolkit",
-  "version": "1.0.0",
   "description": "Monorepo of developer toolkits and utilities under the @servicespack organization",
   "private": true,
   "workspaces": [
@@ -18,5 +17,13 @@
     "url": "https://github.com/servicespack/toolkit.git"
   },
   "author": "ServicesPack <https://github.com/servicespack>",
-  "license": "Unlicense"
+  "license": "Unlicense",
+  "devDependencies": {
+    "@antfu/eslint-config": "^9.5.1",
+    "@types/node": "^20.11.19",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.11.1",
+    "typescript": "^5.3.3",
+    "vitest": "^4.0.18"
+  }
 }

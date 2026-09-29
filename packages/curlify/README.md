@@ -22,8 +22,8 @@ npm install -D @servicespack/curlify
 ### Direct Conversion with SuperTest Response
 
 ```typescript
-import request from 'supertest'
 import { curlify } from '@servicespack/curlify'
+import request from 'supertest'
 import app from './app'
 
 const response = await request(app)
@@ -47,8 +47,8 @@ curl -X POST http://localhost:3000/users \
 Log commands automatically upon response:
 
 ```typescript
-import request from 'supertest'
 import { curlifyMiddleware } from '@servicespack/curlify'
+import request from 'supertest'
 import app from './app'
 
 await request(app)
@@ -62,8 +62,8 @@ await request(app)
 You can configure a custom logger and format options:
 
 ```typescript
-import request from 'supertest'
 import { createCurlifyMiddleware } from '@servicespack/curlify'
+import request from 'supertest'
 import app from './app'
 
 await request(app)
@@ -71,7 +71,7 @@ await request(app)
   .send({ name: 'Gabriel' })
   .use(
     createCurlifyMiddleware({
-      logger: (cmd) => myLogger.info(cmd),
+      logger: cmd => myLogger.info(cmd),
       options: { multiline: false },
       logOnError: true,
     })
